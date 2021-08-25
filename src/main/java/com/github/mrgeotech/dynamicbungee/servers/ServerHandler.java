@@ -1,5 +1,6 @@
 package com.github.mrgeotech.dynamicbungee.servers;
 
+import com.github.mrgeotech.dynamicbungee.DynamicBungee;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -74,6 +75,8 @@ public class ServerHandler implements Runnable {
                             state = 0;
                             break;
                         case 2:
+                            System.out.print(2);
+                            DynamicBungee.removeServer(server.getName());
                             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Shutting down server..").create());
                             input.write("stop\n".getBytes());
                             input.flush();
@@ -86,14 +89,17 @@ public class ServerHandler implements Runnable {
                                 } else {
                                     while (!output.readLine().contains("Closing Server")) {}
                                 }
-                            } catch (IOException ignore) {
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
                             }
                             state = 3;
                             break;
                     }
                     Thread.sleep(100);
                 }
-            } catch (Exception ignore1) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Server is closed!").create());
             server.setRunning(false);
@@ -117,6 +123,7 @@ public class ServerHandler implements Runnable {
 
     public void stop() {
         this.state = 2;
+        System.out.print(state);
     }
 
 }

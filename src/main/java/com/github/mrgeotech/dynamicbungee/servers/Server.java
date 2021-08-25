@@ -61,15 +61,4 @@ public class Server {
         return handler;
     }
 
-    public synchronized void delete(DynamicBungee main) {
-        if (this.isRunning())
-            this.handler.stop();
-        while (this.isRunning()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {}
-        }
-        main.getDynamicLoader().deleteServer(this);
-    }
-
 }

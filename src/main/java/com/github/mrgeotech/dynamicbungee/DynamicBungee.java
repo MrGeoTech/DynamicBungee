@@ -5,11 +5,13 @@ import com.github.mrgeotech.dynamicbungee.loader.DynamicLoader;
 import com.github.mrgeotech.dynamicbungee.servers.Server;
 import com.github.mrgeotech.dynamicbungee.servers.ServerTemplate;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,18 +23,26 @@ public class DynamicBungee extends Plugin {
 
     @Override
     public void onEnable() {
+        // Initiating the variables
         loader = new DynamicLoader(this);
         templates = new HashMap<>();
         servers = new HashMap<>();
+
+        // Creating the default template
         ServerTemplate.init(this);
         templates.put("default", ServerTemplate.DEFAULT_TEMPLATE);
+
+        // Registering commands
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
+
+        // Loading in a servers that were already there
+        loader.loadPreCreatedServers(ServerTemplate.DEFAULT_TEMPLATE);
     }
 
     @Override
     public void onDisable() {
         for (String server : servers.keySet()) {
-            servers.get(server).delete(this);
+            servers.get(server).getHandler().stop();
         }
     }
 
@@ -62,9 +72,7 @@ public class DynamicBungee extends Plugin {
     }
 
     public static void removeServer(String name) {
-        for (ProxiedPlayer p : ProxyServer.getInstance().getServerInfo(name).getPlayers()) {
-            p.disconnect(new ComponentBuilder("This server was forcefully closed.").create());
-        }
+        ProxyServer.getInstance().getServerInfo(name).getPlayers().iterator().forEachRemaining(proxiedPlayer -> proxiedPlayer.connect(ProxyServer.getInstance().getServerInfo("lobby"), ServerConnectEvent.Reason.LOBBY_FALLBACK));
         ProxyServer.getInstance().getServers().remove(name);
     }
 

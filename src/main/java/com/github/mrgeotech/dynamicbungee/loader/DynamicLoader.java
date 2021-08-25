@@ -10,7 +10,9 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
 import java.io.*;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.URL;
 
 public class DynamicLoader {
@@ -54,7 +56,6 @@ public class DynamicLoader {
                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Creating new server template...").create());
                 downloadServerTemplate("https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/786/downloads/paper-1.16.5-786.jar", template);
                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("New server template created!").create());
-                createServer(template);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -62,12 +63,26 @@ public class DynamicLoader {
         return template;
     }
 
-    public void deleteServer(Server server) {
-        ProxyServer.getInstance().getScheduler().runAsync(main, () -> {
-            server.getDirectory().delete();
-        });
-    }
+    public void loadPreCreatedServers(ServerTemplate template) {
+        for (String file : template.getParentDirectory().list()) {
+            try {
+                Integer.parseInt(file.replace(template.getName(), ""));
+                main.addServer(
+                        new Server(file, new File(template.getParentLocation() + "/" + file), template),
+                        new InetSocketAddress("localhost", port),
+                        motd,
+                        false
+                );
+                port++;
 
+                if (available(25566)) {
+                    createServer(ServerTemplate.DEFAULT_TEMPLATE);
+                } else {
+                    port++;
+                }
+            } catch (Exception ignored) {}
+        }
+    }
 
     // Used to download and create a new server
     public boolean downloadServer(Server server) throws IOException {
@@ -176,6 +191,38 @@ public class DynamicLoader {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Checks to see if a specific port is available.
+     *
+     * @param port the port to check for availability
+     */
+    public static boolean available(int port) {
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
     }
 
 }
