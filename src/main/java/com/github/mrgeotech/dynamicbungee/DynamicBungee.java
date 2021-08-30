@@ -27,6 +27,7 @@ public class DynamicBungee extends Plugin {
         ServerTemplate.init(this);
         templates.put("default", ServerTemplate.DEFAULT_TEMPLATE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
+        loader.loadAll();
     }
 
     @Override

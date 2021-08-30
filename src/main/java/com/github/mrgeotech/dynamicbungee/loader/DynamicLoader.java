@@ -68,6 +68,21 @@ public class DynamicLoader {
         });
     }
 
+    public void loadAll() {
+        ServerTemplate template;
+        for (File file : Utils.getChildrenFile(new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/"))) {
+            template = ServerTemplate.createTemplate(file.getName());
+            main.addTemplate(template);
+            for (File file1 : Utils.getChildrenFile(file)) {
+                if (!file1.getName().contains("-template")) {
+                    main.addServer(new Server(file1.getName(), file1, template),
+                            new InetSocketAddress("0.0.0.0", Utils.getPortFromDirectory(file1)),
+                            motd,
+                            false);
+                }
+            }
+        }
+    }
 
     // Used to download and create a new server
     public boolean downloadServer(Server server) throws IOException {
