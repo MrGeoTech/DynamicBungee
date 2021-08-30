@@ -33,7 +33,7 @@ public class DynamicBungee extends Plugin {
     @Override
     public void onDisable() {
         for (String server : servers.keySet()) {
-            servers.get(server).delete(this);
+            servers.get(server).stop();
         }
     }
 

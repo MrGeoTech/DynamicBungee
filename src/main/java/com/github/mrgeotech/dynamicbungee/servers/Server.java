@@ -73,4 +73,10 @@ public class Server {
         main.removeServer(name);
     }
 
+    public void stop() {
+        if (handler != null) {
+            handler.stop();
+        }
+    }
+
 }

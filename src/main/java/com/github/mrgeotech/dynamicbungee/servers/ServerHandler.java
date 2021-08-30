@@ -40,8 +40,6 @@ public class ServerHandler implements Runnable {
             OutputStream input = process.getOutputStream();
             BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Starting server..").create());
-
             try {
                 while (state != 3) {
                     switch (state) {

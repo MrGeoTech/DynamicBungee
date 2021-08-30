@@ -59,11 +59,11 @@ public class LoaderCommand extends Command {
             else
                 sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("You can only stop servers that are started!").create());
         } else if (args[0].equalsIgnoreCase("delete")) {
-            ServerTemplate template = main.getTemplate(args[1]);
-            if (template != null) {
-                main.getDynamicLoader().createServer(template);
+            Server server = main.getServer(args[1]);
+            if (server != null) {
+                server.delete(main);
             } else {
-                sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("You must use an already created template!").create());
+                sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("You can only delete already created servers!").create());
             }
         } else if (args[0].equalsIgnoreCase("createTemplate")) {
             if (main.getTemplate(args[1]) == null) {

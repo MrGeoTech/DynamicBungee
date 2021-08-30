@@ -70,12 +70,16 @@ public class DynamicLoader {
 
     public void loadAll() {
         ServerTemplate template;
+        int port = DynamicLoader.port;
         for (File file : Utils.getChildrenFile(new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/"))) {
             template = ServerTemplate.createTemplate(file.getName());
             main.addTemplate(template);
             for (int i = 0; i < Utils.getChildrenFile(file).length; i++) {
                 File file1 = Utils.getChildrenFile(file)[i];
                 if (!file1.getName().contains("-template")) {
+                    if (Utils.getPortFromDirectory(file1) > port) {
+                        port = Utils.getPortFromDirectory(file1);
+                    }
                     main.addServer(new Server(file1.getName(), file1, template),
                             new InetSocketAddress("0.0.0.0", Utils.getPortFromDirectory(file1)),
                             motd,
@@ -83,20 +87,24 @@ public class DynamicLoader {
                 }
             }
         }
+        DynamicLoader.port = port;
     }
 
     // Used to download and create a new server
     public boolean downloadServer(Server server) throws IOException {
+        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Creating server...").create());
+
         ServerTemplate template = server.getTemplate();
 
         // Getting the children directories that contain each server. They are numbered for labels
         String[] directories = Utils.getChildren(template.getParentDirectory());
         int i = directories != null ? directories.length : 0;
         new File(template.getParentLocation() + "/" + template.getName() + i).mkdirs();
+        server.setDirectory(new File(template.getParentLocation() + "/" + template.getName() + i));
 
-        Utils.copyDirectory(template.getTemplateLocation(), template.getParentLocation() + "/" + template.getName() + i);
+        Utils.copyDirectory(template.getTemplateLocation(), server.getDirectory().getAbsolutePath());
 
-        File file = new File(template.getTemplateLocation() +  "/server.properties");
+        File file = new File(server.getDirectory(), "/server.properties");
         file.createNewFile();
         FileWriter writer = new FileWriter(file);
         writer.write(String.format("#Minecraft server properties\n" +
@@ -156,9 +164,9 @@ public class DynamicLoader {
 
         // Fixing the server variable
         server.setName(template.getName() + i);
-        server.setDirectory(new File(template.getParentLocation() + "/" + template.getName() + i));
         main.addServer(server, new InetSocketAddress("localhost", port), motd, false);
         port++;
+        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Server created!").create());
         return true;
     }
 
@@ -166,7 +174,9 @@ public class DynamicLoader {
     public boolean downloadServerTemplate(String url, ServerTemplate template) throws IOException {
         if (!new File(template.getTemplateLocation()).mkdirs()) return true;
         // Making the needed files for an instant start up
-        File file = new File(template.getTemplateLocation() + "/eula.txt");
+        File file = new File(template.getTemplateLocation() + "/plugins/");
+        file.mkdirs();
+        file = new File(template.getTemplateLocation() + "/eula.txt");
         file.createNewFile();
         FileWriter writer = new FileWriter(file);
         writer.write("#By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula).\n" +
