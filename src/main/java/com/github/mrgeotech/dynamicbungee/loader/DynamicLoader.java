@@ -12,8 +12,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DynamicLoader {
 
@@ -56,6 +54,7 @@ public class DynamicLoader {
                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Creating new server template...").create());
                 downloadServerTemplate("https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/786/downloads/paper-1.16.5-786.jar", template);
                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("New server template created!").create());
+                createServer(template);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -69,23 +68,6 @@ public class DynamicLoader {
         });
     }
 
-    public void loadAll() {
-        ProxyServer.getInstance().getScheduler().runAsync(main, () -> {
-            ServerTemplate template;
-            for (File file : Utils.getChildrenFile(new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/"))) {
-                template = ServerTemplate.createTemplate(file.getName());
-                for (File file1 : Utils.getChildrenFile(file)) {
-                    if (!file1.getName().contains("template")) {
-                        main.addServer(new Server(file1.getName(), file1, template),
-                                new InetSocketAddress("localhost", Utils.getPortFromDirectory(file1)),
-                                motd,
-                                false);
-                    }
-                }
-                main.addTemplate(template);
-            }
-        });
-    }
 
     // Used to download and create a new server
     public boolean downloadServer(Server server) throws IOException {
