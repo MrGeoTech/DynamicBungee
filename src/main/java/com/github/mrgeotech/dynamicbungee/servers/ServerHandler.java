@@ -42,6 +42,7 @@ public class ServerHandler implements Runnable {
             try {
                 while (state != 3) {
                     switch (state) {
+                        // When the server is starting
                         case -1:
                             if (haveOutput) {
                                 String line;
@@ -55,6 +56,7 @@ public class ServerHandler implements Runnable {
                             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Server started!").create());
                             state = 0;
                             break;
+                        // When the server is running normally
                         case 0:
                             if (error.ready()) {
                                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.RED).append(error.readLine()).create());
@@ -63,6 +65,7 @@ public class ServerHandler implements Runnable {
                                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.WHITE).append(output.readLine()).create());
                             }
                             break;
+                        // When issuing a command to the server
                         case 1:
                             byte[] bytes = (command + "\n").getBytes();
                             input.write(bytes);
@@ -73,6 +76,7 @@ public class ServerHandler implements Runnable {
                             }
                             state = 0;
                             break;
+                        // When the server is getting stopped
                         case 2:
                             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Shutting down server..").create());
                             input.write("stop\n".getBytes());
@@ -91,6 +95,7 @@ public class ServerHandler implements Runnable {
                             state = 3;
                             break;
                     }
+                    // Giving it some wait to make it not super resource intensive
                     Thread.sleep(100);
                 }
             } catch (Exception ignore1) {}

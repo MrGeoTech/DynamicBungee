@@ -27,6 +27,7 @@ public class DynamicBungee extends Plugin {
         ServerTemplate.init(this);
         templates.put("default", ServerTemplate.DEFAULT_TEMPLATE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
+        loader.loadAll();
     }
 
     @Override
@@ -59,6 +60,14 @@ public class DynamicBungee extends Plugin {
 
     public boolean containsServer(String name) {
         return servers.containsKey(name);
+    }
+
+    public ServerTemplate[] getTemplates() {
+        return templates.values().toArray(new ServerTemplate[0]);
+    }
+
+    public Server[] getServers() {
+        return servers.values().toArray(new Server[0]);
     }
 
     public static void removeServer(String name) {

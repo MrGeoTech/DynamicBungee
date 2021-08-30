@@ -1,6 +1,7 @@
 package com.github.mrgeotech.dynamicbungee.commands;
 
 import com.github.mrgeotech.dynamicbungee.DynamicBungee;
+import com.github.mrgeotech.dynamicbungee.servers.Server;
 import com.github.mrgeotech.dynamicbungee.servers.ServerTemplate;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -62,6 +63,20 @@ public class LoaderCommand extends Command {
                 main.addTemplate(main.getDynamicLoader().createBlankServerTemplate(ServerTemplate.createTemplate(args[1])));
             } else {
                 sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("Template already exists!").create());
+            }
+        } else if (args[0].equalsIgnoreCase("list")) {
+            if (args[1].equalsIgnoreCase("templates")) {
+                sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("Templates:\n").create());
+                for (ServerTemplate template : main.getTemplates()) {
+                    sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("- " + template.getName() + "\n").create());
+                }
+            } else if (args[1].equalsIgnoreCase("servers")) {
+                sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("Server:\n").create());
+                for (Server server : main.getServers()) {
+                    sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("- " + server.getName() + "\n").create());
+                }
+            } else {
+                sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("You must specify either to list templates or servers!").create());
             }
         } else {
             sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("Improper arguments!").create());

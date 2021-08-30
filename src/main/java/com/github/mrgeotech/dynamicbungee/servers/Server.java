@@ -61,7 +61,7 @@ public class Server {
         return handler;
     }
 
-    public synchronized void delete(DynamicBungee main) {
+    public void delete(DynamicBungee main) {
         if (this.isRunning())
             this.handler.stop();
         while (this.isRunning()) {
