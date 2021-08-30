@@ -54,7 +54,6 @@ public class DynamicLoader {
                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Creating new server template...").create());
                 downloadServerTemplate("https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/786/downloads/paper-1.16.5-786.jar", template);
                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("New server template created!").create());
-                createServer(template);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -64,6 +63,7 @@ public class DynamicLoader {
 
     public void deleteServer(Server server) {
         ProxyServer.getInstance().getScheduler().runAsync(main, () -> {
+            Utils.deleteChildren(server.getDirectory());
             server.getDirectory().delete();
         });
     }
@@ -73,7 +73,8 @@ public class DynamicLoader {
         for (File file : Utils.getChildrenFile(new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/"))) {
             template = ServerTemplate.createTemplate(file.getName());
             main.addTemplate(template);
-            for (File file1 : Utils.getChildrenFile(file)) {
+            for (int i = 0; i < Utils.getChildrenFile(file).length; i++) {
+                File file1 = Utils.getChildrenFile(file)[i];
                 if (!file1.getName().contains("-template")) {
                     main.addServer(new Server(file1.getName(), file1, template),
                             new InetSocketAddress("0.0.0.0", Utils.getPortFromDirectory(file1)),

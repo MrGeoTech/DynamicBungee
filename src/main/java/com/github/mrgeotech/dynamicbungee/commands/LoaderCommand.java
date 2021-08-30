@@ -58,6 +58,13 @@ public class LoaderCommand extends Command {
                 main.getServer(args[1].toLowerCase()).getHandler().stop();
             else
                 sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("You can only stop servers that are started!").create());
+        } else if (args[0].equalsIgnoreCase("delete")) {
+            ServerTemplate template = main.getTemplate(args[1]);
+            if (template != null) {
+                main.getDynamicLoader().createServer(template);
+            } else {
+                sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("You must use an already created template!").create());
+            }
         } else if (args[0].equalsIgnoreCase("createTemplate")) {
             if (main.getTemplate(args[1]) == null) {
                 main.addTemplate(main.getDynamicLoader().createBlankServerTemplate(ServerTemplate.createTemplate(args[1])));
@@ -66,14 +73,14 @@ public class LoaderCommand extends Command {
             }
         } else if (args[0].equalsIgnoreCase("list")) {
             if (args[1].equalsIgnoreCase("templates")) {
-                sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("Templates:\n").create());
+                sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("Templates:").create());
                 for (ServerTemplate template : main.getTemplates()) {
-                    sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("- " + template.getName() + "\n").create());
+                    sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("- " + template.getName() + "").create());
                 }
             } else if (args[1].equalsIgnoreCase("servers")) {
-                sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("Server:\n").create());
+                sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("Server:").create());
                 for (Server server : main.getServers()) {
-                    sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("- " + server.getName() + "\n").create());
+                    sender.sendMessage(new ComponentBuilder("").color(ChatColor.GREEN).append("- " + server.getName() + "").create());
                 }
             } else {
                 sender.sendMessage(new ComponentBuilder("").color(ChatColor.RED).append("You must specify either to list templates or servers!").create());

@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Utils {
@@ -16,12 +14,17 @@ public class Utils {
         return parent.list((current, name) -> new File(current, name).isDirectory());
     }
 
-    public static List<File> getChildrenFile(File parent) {
-        List<File> directories = new ArrayList<>();
-        for (String name : Utils.getChildren(parent)) {
-            directories.add(new File(name));
+    public static File[] getChildrenFile(File parent) {
+        return parent.listFiles((current, name) -> new File(current, name).isDirectory());
+    }
+
+    public static void deleteChildren(File parent) {
+        for (File child : parent.listFiles()) {
+            if (child.isDirectory()) {
+                Utils.deleteChildren(child);
+            }
+            child.delete();
         }
-        return directories;
     }
 
     public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation) {

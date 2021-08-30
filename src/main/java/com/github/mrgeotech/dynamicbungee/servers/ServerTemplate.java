@@ -48,11 +48,11 @@ public class ServerTemplate {
     }
 
     public String getParentLocation() {
-        return parentDirectory.getAbsolutePath().toString();
+        return parentDirectory.getAbsolutePath();
     }
 
     public String getTemplateLocation() {
-        return  templateDirectory.getAbsolutePath().toString();
+        return  templateDirectory.getAbsolutePath();
     }
 
 }

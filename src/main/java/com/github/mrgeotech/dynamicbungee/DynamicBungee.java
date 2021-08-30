@@ -62,11 +62,22 @@ public class DynamicBungee extends Plugin {
         return servers.containsKey(name);
     }
 
-    public static void removeServer(String name) {
+    public Server[] getServers() {
+        return servers.values().toArray(new Server[0]);
+    }
+
+    public ServerTemplate[] getTemplates() {
+        return templates.values().toArray(new ServerTemplate[0]);
+    }
+
+    public void removeServer(String name) {
+        ProxyServer.getInstance().getServers().remove(name);
+    }
+
+    public static void kickPlayersOn(String name) {
         for (ProxiedPlayer p : ProxyServer.getInstance().getServerInfo(name).getPlayers()) {
             p.disconnect(new ComponentBuilder("This server was forcefully closed.").create());
         }
-        ProxyServer.getInstance().getServers().remove(name);
     }
 
 }

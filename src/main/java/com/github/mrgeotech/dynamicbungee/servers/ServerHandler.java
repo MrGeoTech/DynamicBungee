@@ -40,6 +40,8 @@ public class ServerHandler implements Runnable {
             OutputStream input = process.getOutputStream();
             BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
+            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Starting server..").create());
+
             try {
                 while (state != 3) {
                     switch (state) {
@@ -79,8 +81,7 @@ public class ServerHandler implements Runnable {
                             break;
                         // When the server is getting stopped
                         case 2:
-                            System.out.print(2);
-                            DynamicBungee.removeServer(server.getName());
+                            DynamicBungee.kickPlayersOn(server.getName());
                             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Shutting down server..").create());
                             input.write("stop\n".getBytes());
                             input.flush();
@@ -128,7 +129,6 @@ public class ServerHandler implements Runnable {
 
     public void stop() {
         this.state = 2;
-        System.out.print(state);
     }
 
 }

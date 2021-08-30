@@ -70,6 +70,7 @@ public class Server {
             } catch (InterruptedException ignored) {}
         }
         main.getDynamicLoader().deleteServer(this);
+        main.removeServer(name);
     }
 
 }
