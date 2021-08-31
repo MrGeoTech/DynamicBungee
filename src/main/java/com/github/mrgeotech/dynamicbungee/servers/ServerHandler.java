@@ -99,7 +99,9 @@ public class ServerHandler implements Runnable {
                             break;
                     }
                     // Giving it some wait to make it not super resource intensive
-                    Thread.sleep(100);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ignore) {}
                 }
             } catch (Exception e) {
                 e.printStackTrace();
