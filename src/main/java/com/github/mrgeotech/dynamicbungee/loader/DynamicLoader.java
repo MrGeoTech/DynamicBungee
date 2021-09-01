@@ -21,7 +21,7 @@ public class DynamicLoader {
 
     public DynamicLoader(DynamicBungee main) {
         this.main = main;
-        DynamicLoader.port = 25566;
+        DynamicLoader.port = 25567;
         this.motd = "A dynamically created server!";
     }
 
@@ -40,12 +40,18 @@ public class DynamicLoader {
     public ServerHandler startServer(Server server, boolean haveOutput) {
         if (!server.getName().equalsIgnoreCase("creating")) {
             ServerHandler handler = new ServerHandler(server, haveOutput);
-            ProxyServer.getInstance().getScheduler().runAsync(main, handler);
-            server.setHandler(handler);
-            return handler;
+            try {
+                Utils.updatePort(server.getDirectory(), port);
+                ProxyServer.getInstance().getScheduler().runAsync(main, handler);
+                server.setHandler(handler);
+                return handler;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             return null;
         }
+        return null;
     }
 
     public ServerTemplate createBlankServerTemplate(final ServerTemplate template) {
@@ -70,44 +76,36 @@ public class DynamicLoader {
 
     public void loadAll() {
         ServerTemplate template;
-        int port = DynamicLoader.port;
         for (File file : Utils.getChildrenFile(new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/"))) {
             template = ServerTemplate.createTemplate(file.getName());
             main.addTemplate(template);
             for (int i = 0; i < Utils.getChildrenFile(file).length; i++) {
                 File file1 = Utils.getChildrenFile(file)[i];
                 if (!file1.getName().contains("-template")) {
-                    if (Utils.getPortFromDirectory(file1) > port) {
-                        port = Utils.getPortFromDirectory(file1);
+                    try {
+                        Utils.updatePort(file1, port);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                     main.addServer(new Server(file1.getName(), file1, template),
-                            new InetSocketAddress("0.0.0.0", Utils.getPortFromDirectory(file1)),
+                            new InetSocketAddress("0.0.0.0", port),
                             motd,
                             false);
+                    port++;
                 }
             }
         }
-        DynamicLoader.port = port;
     }
 
-    // Used to download and create a new server
-    public boolean downloadServer(Server server) throws IOException {
-        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Creating server...").create());
+    public void startDefaultServer() throws IOException {
+        Server server = new Server("main", new File("/DynamicBungee/server/paperspigot/main"), ServerTemplate.DEFAULT_TEMPLATE);
 
-        ServerTemplate template = server.getTemplate();
-
-        // Getting the children directories that contain each server. They are numbered for labels
-        String[] directories = Utils.getChildren(template.getParentDirectory());
-        int i = directories != null ? directories.length : 0;
-        new File(template.getParentLocation() + "/" + template.getName() + i).mkdirs();
-        server.setDirectory(new File(template.getParentLocation() + "/" + template.getName() + i));
-
-        Utils.copyDirectory(template.getTemplateLocation(), server.getDirectory().getAbsolutePath());
+        Utils.copyDirectory(server.getTemplate().getTemplateLocation(), server.getDirectory().getAbsolutePath());
 
         File file = new File(server.getDirectory(), "/server.properties");
         file.createNewFile();
         FileWriter writer = new FileWriter(file);
-        writer.write(String.format("#Minecraft server properties\n" +
+        writer.write("#Minecraft server properties\n" +
                 "#Mon Jul 19 16:57:48 CDT 2021\n" +
                 "enable-jmx-monitoring=false\n" +
                 "rcon.port=25575\n" +
@@ -134,7 +132,7 @@ public class DynamicLoader {
                 "max-build-height=256\n" +
                 "server-ip=\n" +
                 "allow-nether=true\n" +
-                "server-port=%s\n" +
+                "server-port=25566\n" +
                 "enable-rcon=false\n" +
                 "sync-chunk-writes=true\n" +
                 "op-permission-level=4\n" +
@@ -159,7 +157,89 @@ public class DynamicLoader {
                 "enforce-whitelist=false\n" +
                 "resource-pack-sha1=\n" +
                 "spawn-protection=16\n" +
-                "max-world-size=29999984\n", DynamicLoader.port));
+                "max-world-size=29999984\n");
+        writer.close();
+
+        ServerHandler handler = new ServerHandler(server, false);
+        try {
+            Utils.updatePort(server.getDirectory(), port);
+            ProxyServer.getInstance().getScheduler().runAsync(main, handler);
+            server.setHandler(handler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Used to download and create a new server
+    public boolean downloadServer(Server server) throws IOException {
+        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Creating server...").create());
+
+        ServerTemplate template = server.getTemplate();
+
+        // Getting the children directories that contain each server. They are numbered for labels
+        String[] directories = Utils.getChildren(template.getParentDirectory());
+        int i = directories != null ? directories.length : 0;
+        new File(template.getParentLocation() + "/" + template.getName() + i).mkdirs();
+        server.setDirectory(new File(template.getParentLocation() + "/" + template.getName() + i));
+
+        Utils.copyDirectory(template.getTemplateLocation(), server.getDirectory().getAbsolutePath());
+
+        File file = new File(server.getDirectory(), "/server.properties");
+        file.createNewFile();
+        FileWriter writer = new FileWriter(file);
+        writer.write("#Minecraft server properties\n" +
+                "#Mon Jul 19 16:57:48 CDT 2021\n" +
+                "enable-jmx-monitoring=false\n" +
+                "rcon.port=25575\n" +
+                "level-seed=\n" +
+                "gamemode=survival\n" +
+                "enable-command-block=false\n" +
+                "enable-query=false\n" +
+                "generator-settings=\n" +
+                "level-name=world\n" +
+                "motd=A Minecraft Server\n" +
+                "query.port=25565\n" +
+                "pvp=true\n" +
+                "generate-structures=true\n" +
+                "difficulty=normal\n" +
+                "network-compression-threshold=256\n" +
+                "max-tick-time=60000\n" +
+                "max-players=20\n" +
+                "use-native-transport=true\n" +
+                "online-mode=false\n" +
+                "enable-status=true\n" +
+                "allow-flight=false\n" +
+                "broadcast-rcon-to-ops=true\n" +
+                "view-distance=10\n" +
+                "max-build-height=256\n" +
+                "server-ip=\n" +
+                "allow-nether=true\n" +
+                "server-port=000000\n" +
+                "enable-rcon=false\n" +
+                "sync-chunk-writes=true\n" +
+                "op-permission-level=4\n" +
+                "prevent-proxy-connections=false\n" +
+                "resource-pack=\n" +
+                "entity-broadcast-range-percentage=100\n" +
+                "rcon.password=\n" +
+                "player-idle-timeout=0\n" +
+                "debug=false\n" +
+                "force-gamemode=false\n" +
+                "rate-limit=0\n" +
+                "hardcore=false\n" +
+                "white-list=false\n" +
+                "broadcast-console-to-ops=true\n" +
+                "spawn-npcs=true\n" +
+                "spawn-animals=true\n" +
+                "snooper-enabled=true\n" +
+                "function-permission-level=2\n" +
+                "level-type=default\n" +
+                "text-filtering-config=\n" +
+                "spawn-monsters=true\n" +
+                "enforce-whitelist=false\n" +
+                "resource-pack-sha1=\n" +
+                "spawn-protection=16\n" +
+                "max-world-size=29999984\n");
         writer.close();
 
         // Fixing the server variable

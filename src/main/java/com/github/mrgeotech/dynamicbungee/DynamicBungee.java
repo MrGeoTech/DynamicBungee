@@ -4,11 +4,13 @@ import com.github.mrgeotech.dynamicbungee.commands.LoaderCommand;
 import com.github.mrgeotech.dynamicbungee.loader.DynamicLoader;
 import com.github.mrgeotech.dynamicbungee.servers.Server;
 import com.github.mrgeotech.dynamicbungee.servers.ServerTemplate;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,8 +29,17 @@ public class DynamicBungee extends Plugin {
         ServerTemplate.init(this);
         templates.put("default", ServerTemplate.DEFAULT_TEMPLATE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
+        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Loading servers...").create());
         loader.loadAll();
-
+        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Servers have been loaded!").create());
+        if (Utils.isPortOpen(25566)) {
+            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Default server has not been created. Starting one now...").create());
+            try {
+                loader.startDefaultServer();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

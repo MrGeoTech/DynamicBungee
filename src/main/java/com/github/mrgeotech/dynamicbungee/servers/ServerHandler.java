@@ -45,15 +45,17 @@ public class ServerHandler implements Runnable {
                     switch (state) {
                         // When the server is starting
                         case -1:
-                            if (haveOutput) {
-                                String line;
+                            String line;
+                            try {
                                 while (!(line = output.readLine()).contains("Timings Reset")) {
-                                    ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.WHITE).append(line).create());
+                                    color(line);
                                 }
-                            } else {
-                                while (!output.readLine().contains("Timings Reset")) {
-                                }
+                            } catch (Exception ig) {
+                                state = 2;
+                                ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Server is trying to start on an already used port!!").create());
+                                break;
                             }
+                            line = null;
                             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Server started!").create());
                             state = 0;
                             break;
@@ -62,8 +64,8 @@ public class ServerHandler implements Runnable {
                             if (error.ready()) {
                                 ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.RED).append(error.readLine()).create());
                             }
-                            if (haveOutput && output.ready()) {
-                                ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.WHITE).append(output.readLine()).create());
+                            if (output.ready()) {
+                                color(output.readLine());
                             }
                             break;
                         // When issuing a command to the server
@@ -73,7 +75,7 @@ public class ServerHandler implements Runnable {
                             input.flush();
                             Thread.sleep(100);
                             while (output.ready()) {
-                                ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.WHITE).append(output.readLine()).create());
+                                color(output.readLine());
                             }
                             state = 0;
                             break;
@@ -84,13 +86,12 @@ public class ServerHandler implements Runnable {
                             input.write("stop\n".getBytes());
                             input.flush();
                             try {
-                                if (haveOutput) {
-                                    String line;
-                                    while (!(line = output.readLine()).contains("Closing Server")) {
-                                        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.WHITE).append(line).create());
+                                while (true) {
+                                    line = output.readLine();
+                                    if (line.contains("Closing Server")) {
+                                        break;
                                     }
-                                } else {
-                                    while (!output.readLine().contains("Closing Server")) {}
+                                    color(line);
                                 }
                             } catch (IOException e1) {
                                 e1.printStackTrace();
@@ -129,6 +130,16 @@ public class ServerHandler implements Runnable {
 
     public void stop() {
         this.state = 2;
+    }
+
+    public void color(String input) {
+        if (haveOutput && input.contains("INFO")) {
+            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.WHITE).append(input).create());
+        } else if (input.contains("WARNING")) {
+            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.YELLOW).append(input).create());
+        } else if (input.contains("SEVERE")) {
+            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("{" + server.getName() + "} ").color(ChatColor.RED).append(input).create());
+        }
     }
 
 }

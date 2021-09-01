@@ -1,13 +1,12 @@
 package com.github.mrgeotech.dynamicbungee;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.Scanner;
 
 public class Utils {
@@ -44,20 +43,16 @@ public class Utils {
         } catch (Exception ignore) {}
     }
 
-    public static int getPortFromDirectory(File file) {
-        try {
-            Scanner scanner = new Scanner(new File(file.getAbsolutePath() + "/server.properties"));
-            String line;
-            while (scanner.hasNextLine()) {
-                if ((line = scanner.nextLine()).contains("server-port")) {
-                    return Integer.parseInt(line.replaceAll("server-port=", ""));
-                }
-            }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return 0;
+    public static void updatePort(File parent, int port) throws IOException {
+        FileInputStream in = new FileInputStream(new File(parent, "server.properties"));
+        Properties props = new Properties();
+        props.load(in);
+        in.close();
+
+        FileOutputStream out = new FileOutputStream(new File(parent, "server.properties"));
+        props.setProperty("server-port", String.valueOf(port));
+        props.store(out, null);
+        out.close();
     }
 
     public static boolean isPortOpen(int port) {
