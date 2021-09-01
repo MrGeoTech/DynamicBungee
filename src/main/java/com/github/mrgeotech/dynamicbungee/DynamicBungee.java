@@ -20,6 +20,7 @@ public class DynamicBungee extends Plugin {
     private Map<String,ServerTemplate> templates;
     private Map<String,Server> servers;
     private DynamicLoader loader;
+    private Server mainServer;
 
     @Override
     public void onEnable() {
@@ -30,22 +31,27 @@ public class DynamicBungee extends Plugin {
         templates.put("default", ServerTemplate.DEFAULT_TEMPLATE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
         ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Loading servers...").create());
-        loader.loadAll();
         ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Servers have been loaded!").create());
         if (Utils.isPortOpen(25566)) {
             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Default server has not been created. Starting one now...").create());
             try {
-                loader.startDefaultServer();
+                mainServer = loader.startDefaultServer();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            mainServer = null;
         }
+        loader.loadAll();
     }
 
     @Override
     public void onDisable() {
         for (String server : servers.keySet()) {
             servers.get(server).stop();
+        }
+        if (!Utils.isPortOpen(25566) && mainServer != null) {
+            mainServer.stop();
         }
     }
 

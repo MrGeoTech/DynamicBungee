@@ -77,6 +77,9 @@ public class DynamicLoader {
     public void loadAll() {
         ServerTemplate template;
         for (File file : Utils.getChildrenFile(new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/"))) {
+            if (file.getName().equalsIgnoreCase("main")) {
+                continue;
+            }
             template = ServerTemplate.createTemplate(file.getName());
             main.addTemplate(template);
             for (int i = 0; i < Utils.getChildrenFile(file).length; i++) {
@@ -97,77 +100,74 @@ public class DynamicLoader {
         }
     }
 
-    public void startDefaultServer() throws IOException {
-        Server server = new Server("main", new File("/DynamicBungee/server/paperspigot/main"), ServerTemplate.DEFAULT_TEMPLATE);
+    public Server startDefaultServer() throws IOException {
+        Server server = new Server("main", new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/main"), ServerTemplate.DEFAULT_TEMPLATE);
 
-        Utils.copyDirectory(server.getTemplate().getTemplateLocation(), server.getDirectory().getAbsolutePath());
+        if (new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/main").mkdirs()) {
+            Utils.copyDirectory(server.getTemplate().getTemplateLocation(), server.getDirectory().getAbsolutePath());
 
-        File file = new File(server.getDirectory(), "/server.properties");
-        file.createNewFile();
-        FileWriter writer = new FileWriter(file);
-        writer.write("#Minecraft server properties\n" +
-                "#Mon Jul 19 16:57:48 CDT 2021\n" +
-                "enable-jmx-monitoring=false\n" +
-                "rcon.port=25575\n" +
-                "level-seed=\n" +
-                "gamemode=survival\n" +
-                "enable-command-block=false\n" +
-                "enable-query=false\n" +
-                "generator-settings=\n" +
-                "level-name=world\n" +
-                "motd=A Minecraft Server\n" +
-                "query.port=25565\n" +
-                "pvp=true\n" +
-                "generate-structures=true\n" +
-                "difficulty=normal\n" +
-                "network-compression-threshold=256\n" +
-                "max-tick-time=60000\n" +
-                "max-players=20\n" +
-                "use-native-transport=true\n" +
-                "online-mode=false\n" +
-                "enable-status=true\n" +
-                "allow-flight=false\n" +
-                "broadcast-rcon-to-ops=true\n" +
-                "view-distance=10\n" +
-                "max-build-height=256\n" +
-                "server-ip=\n" +
-                "allow-nether=true\n" +
-                "server-port=25566\n" +
-                "enable-rcon=false\n" +
-                "sync-chunk-writes=true\n" +
-                "op-permission-level=4\n" +
-                "prevent-proxy-connections=false\n" +
-                "resource-pack=\n" +
-                "entity-broadcast-range-percentage=100\n" +
-                "rcon.password=\n" +
-                "player-idle-timeout=0\n" +
-                "debug=false\n" +
-                "force-gamemode=false\n" +
-                "rate-limit=0\n" +
-                "hardcore=false\n" +
-                "white-list=false\n" +
-                "broadcast-console-to-ops=true\n" +
-                "spawn-npcs=true\n" +
-                "spawn-animals=true\n" +
-                "snooper-enabled=true\n" +
-                "function-permission-level=2\n" +
-                "level-type=default\n" +
-                "text-filtering-config=\n" +
-                "spawn-monsters=true\n" +
-                "enforce-whitelist=false\n" +
-                "resource-pack-sha1=\n" +
-                "spawn-protection=16\n" +
-                "max-world-size=29999984\n");
-        writer.close();
-
-        ServerHandler handler = new ServerHandler(server, false);
-        try {
-            Utils.updatePort(server.getDirectory(), port);
-            ProxyServer.getInstance().getScheduler().runAsync(main, handler);
-            server.setHandler(handler);
-        } catch (IOException e) {
-            e.printStackTrace();
+            File file = new File(server.getDirectory(), "/server.properties");
+            file.createNewFile();
+            FileWriter writer = new FileWriter(file);
+            writer.write("#Minecraft server properties\n" +
+                    "#Mon Jul 19 16:57:48 CDT 2021\n" +
+                    "enable-jmx-monitoring=false\n" +
+                    "rcon.port=25575\n" +
+                    "level-seed=\n" +
+                    "gamemode=survival\n" +
+                    "enable-command-block=false\n" +
+                    "enable-query=false\n" +
+                    "generator-settings=\n" +
+                    "level-name=world\n" +
+                    "motd=A Minecraft Server\n" +
+                    "query.port=25565\n" +
+                    "pvp=true\n" +
+                    "generate-structures=true\n" +
+                    "difficulty=normal\n" +
+                    "network-compression-threshold=256\n" +
+                    "max-tick-time=60000\n" +
+                    "max-players=20\n" +
+                    "use-native-transport=true\n" +
+                    "online-mode=false\n" +
+                    "enable-status=true\n" +
+                    "allow-flight=false\n" +
+                    "broadcast-rcon-to-ops=true\n" +
+                    "view-distance=10\n" +
+                    "max-build-height=256\n" +
+                    "server-ip=\n" +
+                    "allow-nether=true\n" +
+                    "server-port=25566\n" +
+                    "enable-rcon=false\n" +
+                    "sync-chunk-writes=true\n" +
+                    "op-permission-level=4\n" +
+                    "prevent-proxy-connections=false\n" +
+                    "resource-pack=\n" +
+                    "entity-broadcast-range-percentage=100\n" +
+                    "rcon.password=\n" +
+                    "player-idle-timeout=0\n" +
+                    "debug=false\n" +
+                    "force-gamemode=false\n" +
+                    "rate-limit=0\n" +
+                    "hardcore=false\n" +
+                    "white-list=false\n" +
+                    "broadcast-console-to-ops=true\n" +
+                    "spawn-npcs=true\n" +
+                    "spawn-animals=true\n" +
+                    "snooper-enabled=true\n" +
+                    "function-permission-level=2\n" +
+                    "level-type=default\n" +
+                    "text-filtering-config=\n" +
+                    "spawn-monsters=true\n" +
+                    "enforce-whitelist=false\n" +
+                    "resource-pack-sha1=\n" +
+                    "spawn-protection=16\n" +
+                    "max-world-size=29999984\n");
+            writer.close();
         }
+
+        port = 25566;
+        startServer(server, false);
+        return server;
     }
 
     // Used to download and create a new server
