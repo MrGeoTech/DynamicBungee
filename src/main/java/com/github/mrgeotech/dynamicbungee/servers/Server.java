@@ -61,6 +61,11 @@ public class Server {
         return handler;
     }
 
+    /**
+     * Deletes the server from existence
+     *
+     * @param main The plugin that is issuing the deletion
+     */
     public void delete(DynamicBungee main) {
         if (this.isRunning())
             this.handler.stop();
@@ -73,6 +78,9 @@ public class Server {
         main.removeServer(name);
     }
 
+    /**
+     * Stops the server with a check
+     */
     public void stop() {
         if (handler != null) {
             handler.stop();

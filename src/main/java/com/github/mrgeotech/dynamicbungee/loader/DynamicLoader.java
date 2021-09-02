@@ -25,6 +25,12 @@ public class DynamicLoader {
         this.motd = "A dynamically created server!";
     }
 
+    /**
+     * Creates a server from a template using the template
+     *
+     * @param template The template to copy
+     * @return The server container
+     */
     public Server createServer(final ServerTemplate template) {
         final Server server = new Server("creating", new File(""), template);
         ProxyServer.getInstance().getScheduler().runAsync(main, () -> {
@@ -37,6 +43,13 @@ public class DynamicLoader {
         return server;
     }
 
+    /**
+     * Starts a server from a given server container
+     * 
+     * @param server Server that is going to be started
+     * @param haveOutput Whether the server should output its console to the proxy console
+     * @return Returns the server handler that is handling the I/O of the server process
+     */
     public ServerHandler startServer(Server server, boolean haveOutput) {
         if (!server.getName().equalsIgnoreCase("creating")) {
             ServerHandler handler = new ServerHandler(server, haveOutput);
@@ -54,6 +67,12 @@ public class DynamicLoader {
         return null;
     }
 
+    /**
+     * Creates a blank server template from a template container
+     *
+     * @param template The template container to use for creation
+     * @return The template used
+     */
     public ServerTemplate createBlankServerTemplate(final ServerTemplate template) {
         ProxyServer.getInstance().getScheduler().runAsync(main, () -> {
             try {
@@ -67,6 +86,11 @@ public class DynamicLoader {
         return template;
     }
 
+    /**
+     * Deletes all of a servers files
+     *
+     * @param server The server to delete
+     */
     public void deleteServer(Server server) {
         ProxyServer.getInstance().getScheduler().runAsync(main, () -> {
             Utils.deleteChildren(server.getDirectory());
@@ -74,6 +98,9 @@ public class DynamicLoader {
         });
     }
 
+    /**
+     * Loads all the servers that are stored on the disk
+     */
     public void loadAll() {
         ServerTemplate template;
         for (File file : Utils.getChildrenFile(new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/"))) {
@@ -100,6 +127,11 @@ public class DynamicLoader {
         }
     }
 
+    /**
+     * Starts a server on port 25566 to act as a default server for people to connect to
+     *
+     * @return The server that was started
+     */
     public Server startDefaultServer() throws IOException {
         Server server = new Server("main", new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/main"), ServerTemplate.DEFAULT_TEMPLATE);
 
@@ -170,7 +202,12 @@ public class DynamicLoader {
         return server;
     }
 
-    // Used to download and create a new server
+    /**
+     * Used to copy server files from a template to a new server location
+     *
+     * @param server The server container that is getting created
+     * @return Returns if the server has been successfully copied
+     */
     public boolean downloadServer(Server server) throws IOException {
         ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Creating server...").create());
 
@@ -250,7 +287,14 @@ public class DynamicLoader {
         return true;
     }
 
-    // Used to download and create a new server template
+    /**
+     * Creates new server template files.
+     * This includes downloading a server jar and creating a OKed eula file
+     *
+     * @param url Downloads the jar from this url
+     * @param template The template container for the server being downloaded
+     * @return Whether the download of the server jar was successful
+     */
     public boolean downloadServerTemplate(String url, ServerTemplate template) throws IOException {
         if (!new File(template.getTemplateLocation()).mkdirs()) return true;
         // Making the needed files for an instant start up
@@ -268,6 +312,13 @@ public class DynamicLoader {
         return downloadFile(url, template.getTemplateLocation() + "/server.jar");
     }
 
+    /**
+     * Used to download a file from an url to a specified location
+     *
+     * @param url Url of the file to download
+     * @param location Location to output the file once downloaded
+     * @return Whether the file was downloaded successfully
+     */
     public boolean downloadFile(String url, String location) {
         try (BufferedInputStream inputStream = new BufferedInputStream(new URL(url).openStream());
             FileOutputStream fileOutputStream = new FileOutputStream(location)) {

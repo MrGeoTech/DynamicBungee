@@ -1,6 +1,7 @@
 package com.github.mrgeotech.dynamicbungee;
 
 import com.github.mrgeotech.dynamicbungee.commands.LoaderCommand;
+import com.github.mrgeotech.dynamicbungee.config.ConfigHandler;
 import com.github.mrgeotech.dynamicbungee.loader.DynamicLoader;
 import com.github.mrgeotech.dynamicbungee.servers.Server;
 import com.github.mrgeotech.dynamicbungee.servers.ServerTemplate;
@@ -9,6 +10,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.Configuration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,9 +23,12 @@ public class DynamicBungee extends Plugin {
     private Map<String,Server> servers;
     private DynamicLoader loader;
     private Server mainServer;
+    private ConfigHandler configHandler;
 
     @Override
     public void onEnable() {
+        configHandler = new ConfigHandler(this);
+        configHandler.load();
         loader = new DynamicLoader(this);
         templates = new HashMap<>();
         servers = new HashMap<>();
@@ -31,7 +36,6 @@ public class DynamicBungee extends Plugin {
         templates.put("default", ServerTemplate.DEFAULT_TEMPLATE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
         ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Loading servers...").create());
-        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Servers have been loaded!").create());
         if (Utils.isPortOpen(25566)) {
             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Default server has not been created. Starting one now...").create());
             try {
@@ -43,6 +47,7 @@ public class DynamicBungee extends Plugin {
             mainServer = null;
         }
         loader.loadAll();
+        ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Servers have been loaded!").create());
     }
 
     @Override
@@ -53,6 +58,7 @@ public class DynamicBungee extends Plugin {
         if (!Utils.isPortOpen(25566) && mainServer != null) {
             mainServer.stop();
         }
+        configHandler.save();
     }
 
     public DynamicLoader getDynamicLoader() {
@@ -96,6 +102,10 @@ public class DynamicBungee extends Plugin {
         for (ProxiedPlayer p : ProxyServer.getInstance().getServerInfo(name).getPlayers()) {
             p.disconnect(new ComponentBuilder("This server was forcefully closed.").create());
         }
+    }
+
+    public Configuration getConfiguration() {
+        return configHandler.getConfig();
     }
 
 }

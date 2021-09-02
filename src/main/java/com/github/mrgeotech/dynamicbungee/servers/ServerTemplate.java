@@ -20,7 +20,9 @@ public class ServerTemplate {
         this.templateDirectory = templateDirectory;
     }
 
-    // Used to initialise the default server template
+    /**
+     * Used to initialise the default server template
+     */
     public static void init(DynamicBungee main) {
         DEFAULT_TEMPLATE = main.getDynamicLoader()
                 .createBlankServerTemplate(
@@ -28,6 +30,12 @@ public class ServerTemplate {
                 );
     }
 
+    /**
+     * Shortens the creation of server templates
+     *
+     * @param name The name of the template
+     * @return The created template
+     */
     public static ServerTemplate createTemplate(String name) {
         return new ServerTemplate(name,
                 new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/" + name),
