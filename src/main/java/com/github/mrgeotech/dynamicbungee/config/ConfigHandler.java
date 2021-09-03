@@ -40,6 +40,16 @@ public class ConfigHandler {
     }
 
     /**
+     * Used to save the default config with all the default values
+     */
+    public void saveDefaults() {
+        if (new File(main.getDataFolder(), "/DynamicBungee/config.yml").exists()) return;
+
+        config.set("default-template-name", "default");
+        config.set("", "");
+    }
+
+    /**
      * Gets the current config that is stored in memory
      *
      * @return The configuration

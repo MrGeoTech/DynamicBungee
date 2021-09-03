@@ -24,20 +24,22 @@ public class DynamicBungee extends Plugin {
     private DynamicLoader loader;
     private Server mainServer;
     private ConfigHandler configHandler;
+    private int defaultPort;
 
     @Override
     public void onEnable() {
         configHandler = new ConfigHandler(this);
         configHandler.load();
+        defaultPort = Integer.getInteger(configHandler.getConfig().getString("default-server.port"));
         loader = new DynamicLoader(this);
         templates = new HashMap<>();
         servers = new HashMap<>();
         ServerTemplate.init(this);
-        templates.put("default", ServerTemplate.DEFAULT_TEMPLATE);
+        templates.put(configHandler.getConfig().getString("default-template-name"), ServerTemplate.DEFAULT_TEMPLATE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
         ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Loading servers...").create());
-        if (Utils.isPortOpen(25566)) {
-            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Default server has not been created. Starting one now...").create());
+        if (Utils.isPortOpen(defaultPort)) {
+            ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Server not found running on port " + defaultPort + "! Starting server...").create());
             try {
                 mainServer = loader.startDefaultServer();
             } catch (IOException e) {
@@ -55,7 +57,7 @@ public class DynamicBungee extends Plugin {
         for (String server : servers.keySet()) {
             servers.get(server).stop();
         }
-        if (!Utils.isPortOpen(25566) && mainServer != null) {
+        if (!Utils.isPortOpen(defaultPort) && mainServer != null) {
             mainServer.stop();
         }
         configHandler.save();
