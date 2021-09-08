@@ -35,7 +35,7 @@ public class DynamicBungee extends Plugin {
         templates = new HashMap<>();
         servers = new HashMap<>();
         ServerTemplate.init(this);
-        templates.put(configHandler.getConfig().getString("default-template-name"), ServerTemplate.DEFAULT_TEMPLATE);
+        templates.put(configHandler.getConfig().getString("defaults.template-name"), ServerTemplate.DEFAULT_TEMPLATE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new LoaderCommand(this));
         ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Loading servers...").create());
         if (Utils.isPortOpen(defaultPort)) {

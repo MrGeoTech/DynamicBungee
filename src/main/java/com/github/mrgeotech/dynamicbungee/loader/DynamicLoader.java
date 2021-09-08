@@ -22,7 +22,7 @@ public class DynamicLoader {
     public DynamicLoader(DynamicBungee main) {
         this.main = main;
         DynamicLoader.port = 25567;
-        this.motd = "A dynamically created server!";
+        this.motd = main.getConfiguration().getString("defaults.motd");
     }
 
     /**
