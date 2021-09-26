@@ -30,7 +30,7 @@ public class DynamicBungee extends Plugin {
     public void onEnable() {
         configHandler = new ConfigHandler(this);
         configHandler.load();
-        defaultPort = Integer.getInteger(configHandler.getConfig().getString("default-server.port"));
+        defaultPort = Integer.getInteger(configHandler.getConfig().getString("defaults.server-port"));
         loader = new DynamicLoader(this);
         templates = new HashMap<>();
         servers = new HashMap<>();
