@@ -22,7 +22,15 @@ public class ConfigHandler {
      */
     public void load() {
         try {
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(main.getDataFolder(), "/DynamicBungee/config.yml"));
+            File file = new File(main.getDataFolder().getAbsolutePath(), "config.yml");
+            file.getParentFile().mkdirs();
+            System.out.print(file.getAbsolutePath());
+            if (file.createNewFile()) {
+                config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
+                saveDefaults();
+            } else {
+                config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,7 +41,7 @@ public class ConfigHandler {
      */
     public void save() {
         try {
-            ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, new File(main.getDataFolder(), "/DynamicBungee/config.yml"));
+            ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, new File(main.getDataFolder(), "config.yml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,12 +51,12 @@ public class ConfigHandler {
      * Used to save the default config with all the default values
      */
     public void saveDefaults() {
-        if (new File(main.getDataFolder(), "/DynamicBungee/config.yml").exists()) return;
-
         config.set("defaults.template-name", "default");
         config.set("defaults.template-server-type", "paper");
         config.set("defaults.template-server-version", "1.16.5");
         config.set("defaults.server-port", "25566");
+
+        save();
     }
 
     /**
