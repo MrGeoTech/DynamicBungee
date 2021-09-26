@@ -309,7 +309,7 @@ public class DynamicLoader {
                 "eula=true\n");
         writer.close();
 
-        return downloadFile(url, template.getTemplateLocation() + "/server.jar");
+        return downloadFile(Utils.getDownloadUrl("paper", "1.16.5"), template.getTemplateLocation() + "/server.jar");
     }
 
     /**

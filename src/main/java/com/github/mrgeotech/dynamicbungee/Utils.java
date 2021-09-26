@@ -1,5 +1,7 @@
 package com.github.mrgeotech.dynamicbungee;
 
+import net.md_5.bungee.config.Configuration;
+
 import java.io.*;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
@@ -8,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
-import java.util.Scanner;
 
 public class Utils {
 
@@ -120,22 +121,20 @@ public class Utils {
     }
 
     public static String getDownloadUrl(String type, String version) {
-        if (type.equalsIgnoreCase("paper")) {
-            try {
-                BufferedReader rd = new BufferedReader(
-                        new InputStreamReader(
-                                new URL("https://papermc.io/api/v2/projects/paper/versions/" + version).openStream()));
-                StringBuilder sb = new StringBuilder();
-                int cp;
-                while ((cp = rd.read()) != -1) {
-                    sb.append((char) cp);
-                }
-                return "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/788/dowloads/paper-" +
-                        version + "-" +
-                        getLatestBuildFromStringList(sb.toString().replace("]}", "")) + ".jar";
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            BufferedReader rd = new BufferedReader(
+                    new InputStreamReader(
+                            new URL("https://papermc.io/api/v2/projects/paper/versions/" + version).openStream()));
+            StringBuilder sb = new StringBuilder();
+            int cp;
+            while ((cp = rd.read()) != -1) {
+                sb.append((char) cp);
             }
+            return "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/788/dowloads/paper-" +
+                    version + "-" +
+                    getLatestBuildFromStringList(sb.toString().replace("]}", "")) + ".jar";
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
