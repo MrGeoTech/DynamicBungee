@@ -1,6 +1,8 @@
 package com.github.mrgeotech.dynamicbungee;
 
 import net.md_5.bungee.config.Configuration;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.DatagramSocket;
@@ -121,27 +123,28 @@ public class Utils {
     }
 
     public static String getDownloadUrl(String type, String version) {
-        try {
-            BufferedReader rd = new BufferedReader(
-                    new InputStreamReader(
-                            new URL("https://papermc.io/api/v2/projects/paper/versions/" + version).openStream()));
-            StringBuilder sb = new StringBuilder();
-            int cp;
-            while ((cp = rd.read()) != -1) {
-                sb.append((char) cp);
+        if (type.equalsIgnoreCase("paper")) {
+            try {
+                JSONObject json = getJsonFromURL(new URL("https://papermc.io/api/v2/projects/paper/versions/" + version + "/"));
+                JSONArray builds = json.getJSONArray("builds");
+                int build = builds.getInt(builds.length() - 1);
+                return "https://papermc.io/api/v2/projects/paper/versions/" + version + "/builds/" + build + "/downloads/paper-" + version + "-" + build + ".jar";
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            return "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/788/dowloads/paper-" +
-                    version + "-" +
-                    getLatestBuildFromStringList(sb.toString().replace("]}", "")) + ".jar";
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return null;
     }
 
-    private static String getLatestBuildFromStringList(String list) {
-        String[] builds = list.split(",");
-        return builds[builds.length - 1];
+    public static JSONObject getJsonFromURL(URL url) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        String document = "";
+        String temp;
+        while ((temp = reader.readLine()) != null) {
+            document += temp;
+        }
+        reader.close();
+        return new JSONObject(document);
     }
 
 }

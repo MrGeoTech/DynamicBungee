@@ -30,7 +30,7 @@ public class DynamicBungee extends Plugin {
     public void onEnable() {
         configHandler = new ConfigHandler(this);
         configHandler.load();
-        defaultPort = Integer.getInteger(configHandler.getConfig().getString("defaults.server-port"));
+        defaultPort = configHandler.getConfig().getInt("defaults.server-port");
         loader = new DynamicLoader(this);
         templates = new HashMap<>();
         servers = new HashMap<>();
@@ -41,7 +41,7 @@ public class DynamicBungee extends Plugin {
         if (Utils.isPortOpen(defaultPort)) {
             ProxyServer.getInstance().getConsole().sendMessage(new ComponentBuilder("").color(ChatColor.DARK_AQUA).append("Server not found running on port " + defaultPort + "! Starting server...").create());
             try {
-                mainServer = loader.startDefaultServer();
+                mainServer = loader.startDefaultServer(defaultPort);
             } catch (IOException e) {
                 e.printStackTrace();
             }

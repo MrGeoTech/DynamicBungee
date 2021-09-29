@@ -132,7 +132,7 @@ public class DynamicLoader {
      *
      * @return The server that was started
      */
-    public Server startDefaultServer() throws IOException {
+    public Server startDefaultServer(int defaultPort) throws IOException {
         Server server = new Server("main", new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/main"), ServerTemplate.DEFAULT_TEMPLATE);
 
         if (new File(ProxyServer.getInstance().getPluginsFolder(), "/DynamicBungee/server/paperspigot/main").mkdirs()) {
@@ -168,7 +168,7 @@ public class DynamicLoader {
                     "max-build-height=256\n" +
                     "server-ip=\n" +
                     "allow-nether=true\n" +
-                    "server-port=25566\n" +
+                    "server-port=" + defaultPort + "\n" +
                     "enable-rcon=false\n" +
                     "sync-chunk-writes=true\n" +
                     "op-permission-level=4\n" +
@@ -197,7 +197,7 @@ public class DynamicLoader {
             writer.close();
         }
 
-        port = 25566;
+        port = defaultPort + 1;
         startServer(server, false);
         return server;
     }

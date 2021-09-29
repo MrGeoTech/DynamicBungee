@@ -54,7 +54,7 @@ public class ConfigHandler {
         config.set("defaults.template-name", "default");
         config.set("defaults.template-server-type", "paper");
         config.set("defaults.template-server-version", "1.16.5");
-        config.set("defaults.server-port", "25566");
+        config.set("defaults.server-port", 25566);
 
         save();
     }
